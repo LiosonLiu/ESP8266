@@ -26,7 +26,6 @@ const char* aliasB 	= "light_sensor";
 const char* aliasC 	= "button";
 const char* fingerprint = "AC 39 F8 6F EB 25 A7 4F E9 29 2B E0 E4 62 EA 5F 90 25 C3 07";
 String LedData;
-const long RPCinterval = 200;//1.2sec
 unsigned long RPCpreviousTimeStamp;
 unsigned char ButtonData,LightSensor;
 //=================
