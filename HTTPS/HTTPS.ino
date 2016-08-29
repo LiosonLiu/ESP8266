@@ -1,14 +1,9 @@
 /*
     HTTP over TLS (HTTPS) example sketch
-
-    This example demonstrates how to use
-    WiFiClientSecure class to access HTTPS API.
-    We fetch and display the status of
-    esp8266/Arduino project continous integration
-    build.
-
-    Created by Ivan Grokhotkov, 2015.
-    This example is in public domain.
+    Note:
+		1.Get fingerprint via web browser to view the certificate 
+		2.Portals	: Embedded.exosite.com
+		3.User		: embedded_test@exosite.com
 */
 #include <Wire.h>
 #include <ESP8266WiFi.h>
@@ -21,19 +16,17 @@ const int LED_RED 	= 15;
 const int LED_GREEN = 12;
 const int LED_BLUE 	= 13;
 //Value
-const char* ssid 	= "ExoMobile";
-const char* password = "Colfax227";
-
+const char* ssid 	= "exosite_spg_02";
+const char* password = "ex0p@ssw0rd";
 const char* host 	= "m2.exosite.com";
 const int httpsPort = 443;
-const char* cik  	= "78a23b8c723d5dc5942bd8ce9c2a2b71412de9f9";
+const char* cik  	= "701f1c55279c20678ac1e7c5173ded514bb37b7e";
 const char* aliasA 	= "led_data";
 const char* aliasB 	= "light_sensor";
 const char* aliasC 	= "button";
-const char* fingerprint = "1abbf683b33fb3e4ab4dd829e26608884e61e61d";
-
+const char* fingerprint = "AC 39 F8 6F EB 25 A7 4F E9 29 2B E0 E4 62 EA 5F 90 25 C3 07";
 String LedData;
-const long RPCinterval = 1200;//1.2sec
+const long RPCinterval = 200;//1.2sec
 unsigned long RPCpreviousTimeStamp;
 unsigned char ButtonData,LightSensor;
 //=================
@@ -241,43 +234,37 @@ int red,green,blue;
 unsigned long CurrentTimeStamp = millis();			
 WiFiClientSecure client;
   
-if (WiFi.status() != WL_CONNECTED) 
+unsigned long StartTimer = millis();  
+if (WiFi.status() != WL_CONNECTED)
+	{ 
 	connectWiFi();
-  
-if (CurrentTimeStamp - RPCpreviousTimeStamp >= RPCinterval) 
-	{
 	Serial.print("=============================Connection START=============================\r\n");
-    RPCpreviousTimeStamp = CurrentTimeStamp;    
-    Serial.print("connecting to ");
-    Serial.println(host);
-    if (!client.connect(host, httpsPort)) 
-    	{
-      	Serial.println("connection failed \r\n");
-      	return;
-    	}
-
- 	if (client.verify(fingerprint, host)) 
-    	Serial.println("certificate matches \r\n");
-	else 
-   		{
-    	Serial.println("certificate doesn't match \r\n");
-    	return;
-    	}
-	ReadDataFromCloud(client);
-	
-	red 	= ASCIItoHex(LedData[0],LedData[1]);
-	green	= ASCIItoHex(LedData[2],LedData[3]);
-	blue 	= ASCIItoHex(LedData[4],LedData[5]);
 	}
+if (!client.connect(host, httpsPort)) 
+	{
+    Serial.println("connection failed \r\n");
+    return;
+    }
+if (!client.verify(fingerprint, host))
+	{
+  	Serial.println("certificate doesn't match \r\n");
+  	return;
+  	}    	   	 	
+ReadDataFromCloud(client);	
+red 	= ASCIItoHex(LedData[0],LedData[1]);
+green	= ASCIItoHex(LedData[2],LedData[3]);
+blue 	= ASCIItoHex(LedData[4],LedData[5]);
 analogWrite(LED_RED, random(0,red<<2));
 analogWrite(LED_GREEN, random(0,green<<2));
 analogWrite(LED_BLUE, random(0,blue<<2));
 LightSensor=0xff-analogRead(LDR);
 ButtonData=digitalRead(BUTTON);
+
+unsigned long EndTimer = millis();	
+String str = "T time:" + String(EndTimer-StartTimer) + "mS";
+Serial.println(str);
 }
 
 
 /*
-
-
 */
